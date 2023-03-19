@@ -1,4 +1,4 @@
-import { watch } from 'vue';
+import { watch, computed } from 'vue';
 import clientsApi from '@/api/clients-api'
 import { useClientsStore } from '@/store/clients'
 import { useQuery } from '@tanstack/vue-query'
@@ -36,7 +36,17 @@ const useClients = () => {
     clients, 
     currentPage,
     isLoading,
-    totalPages
+    totalPages,
+
+    // methods
+    getPage(page: number) {
+      store.setPage(page)
+    },
+
+    // Getters
+    totalPageNumbers: computed(
+      () => [...new Array(totalPages.value)].map((v, i) => i + 1)
+    ),
   }
 }
 

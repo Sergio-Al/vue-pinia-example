@@ -5,8 +5,8 @@ import { useQuery } from '@tanstack/vue-query'
 import { storeToRefs } from 'pinia'
 import type { Client } from '../interfaces/client'
 
-const getClients = async (): Promise<Client[]> => {
-  const { data } = await clientsApi.get<Client[]>('/clients?_page=1')
+const getClients = async (page:number): Promise<Client[]> => {
+  const { data } = await clientsApi.get<Client[]>(`/clients?_page=${page}`)
   return data
 }
 
@@ -15,10 +15,9 @@ const useClients = () => {
   const { currentPage, clients, totalPages } = storeToRefs(store)
 
   const { isLoading, data } = useQuery(
-    ['clients?page=', 1], 
-    () => getClients(), 
+    ['clients?page=', currentPage], // useQuery recognizes reactive variables like "currentPage"
+    () => getClients(currentPage.value), 
     {
-      staleTime: 1000 * 60,
       onSuccess(newClients) {
         console.log('New loaded clients')
         store.setClients(newClients)

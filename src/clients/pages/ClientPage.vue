@@ -1,35 +1,24 @@
 <script setup lang="ts">
+import { watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+
 import { NH1, NH3, NButton, NInput } from 'naive-ui'
 import LoadingModal from '@/shared/components/LoadingModal.vue'
 
 import useClient from '@/clients/composables/useClient'
-import { useRoute, useRouter } from 'vue-router'
-import { useMutation, useQueryClient } from '@tanstack/vue-query'
-import type { Client } from '../interfaces/client'
-import clientsApi from '@/api/clients-api'
-import { watch } from 'vue'
 
 const route = useRoute()
 const router = useRouter()
-const queryClient = useQueryClient()
 
-const { client, isLoading, isError } = useClient(+route.params.id)
-
-const updateClient = async (client: Client): Promise<Client> => {
-  //  await new Promise((resolve) => {
-  //   setTimeout(() => {
-  //     resolve(true)
-  //   }, 2000)
-  // })
-
-  const { data } = await clientsApi.patch(`/clients/${client.id}`, client)
-  const queries = queryClient.getQueryCache().findAll(['clients?page='], { exact: false }) // Clear cache
-  queries.forEach(query => query.fetch())
-
-  return data
-}
-
-const clientMutation = useMutation(updateClient)
+const {
+  client,
+  isLoading,
+  isError,
+  clientMutation,
+  updateClient,
+  isUpdating,
+  isUpdatingSuccessful
+} = useClient(+route.params.id)
 
 watch(clientMutation.isSuccess, () => {
   setTimeout(() => {
@@ -38,14 +27,14 @@ watch(clientMutation.isSuccess, () => {
 })
 
 watch(isError, () => {
-  if(isError.value) {
+  if (isError.value) {
     router.replace('/clients')
   }
 })
 </script>
 <template>
-  <n-h3 v-if="clientMutation.isLoading.value">Saving...</n-h3>
-  <n-h3 v-if="clientMutation.isSuccess.value">Saved</n-h3>
+  <n-h3 v-if="isUpdating">Saving...</n-h3>
+  <n-h3 v-if="isUpdatingSuccessful">Saved</n-h3>
 
   <LoadingModal v-if="isLoading" />
 
@@ -58,7 +47,7 @@ watch(isError, () => {
         type="primary"
         size="medium"
         :disabled="clientMutation.isLoading.value"
-        @click="clientMutation.mutate(client!)"
+        @click="updateClient(client!)"
       >
         Save
       </n-button>

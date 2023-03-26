@@ -12,19 +12,22 @@ const getClient = async (id: number) => {
 const useClient = (id: number) => {
   const client = ref<Client>()
 
-  const { isLoading, data } = useQuery(['client', id], () => getClient(id))
+  const { isLoading, data, isError } = useQuery(['client', id], () => getClient(id), {
+    retry: false
+  })
 
   watch(
     data,
     () => {
-      if (data.value) client.value = {...data.value}
+      if (data.value) client.value = { ...data.value }
     },
     { immediate: true }
   )
 
   return {
+    client,
+    isError,
     isLoading,
-    client
   }
 }
 

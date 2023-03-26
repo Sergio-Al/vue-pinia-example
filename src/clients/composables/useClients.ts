@@ -1,11 +1,17 @@
-import { watch, computed } from 'vue';
+import { watch, computed } from 'vue'
 import clientsApi from '@/api/clients-api'
 import { useClientsStore } from '@/store/clients'
 import { useQuery } from '@tanstack/vue-query'
 import { storeToRefs } from 'pinia'
 import type { Client } from '../interfaces/client'
 
-const getClients = async (page:number): Promise<Client[]> => {
+const getClients = async (page: number): Promise<Client[]> => {
+  // await new Promise((resolve) => {
+  //   setTimeout(() => {
+  //     resolve(true)
+  //   }, 2000)
+  // })
+
   const { data } = await clientsApi.get<Client[]>(`/clients?_page=${page}`)
   return data
 }
@@ -16,8 +22,9 @@ const useClients = () => {
 
   const { isLoading, data } = useQuery(
     ['clients?page=', currentPage], // useQuery recognizes reactive variables like "currentPage"
-    () => getClients(currentPage.value), 
+    () => getClients(currentPage.value),
     {
+      // staleTime: 1000 * 60;
       onSuccess(newClients) {
         console.log('New loaded clients')
         store.setClients(newClients)
@@ -25,14 +32,13 @@ const useClients = () => {
     }
   )
 
-  watch(data, clients => {
-    if(clients)
-      store.setClients(clients);
+  watch(data, (clients) => {
+    if (clients) store.setClients(clients)
   })
 
   return {
     // Properties/State
-    clients, 
+    clients,
     currentPage,
     isLoading,
     totalPages,
@@ -43,9 +49,7 @@ const useClients = () => {
     },
 
     // Getters
-    totalPageNumbers: computed(
-      () => [...new Array(totalPages.value)].map((v, i) => i + 1)
-    ),
+    totalPageNumbers: computed(() => [...new Array(totalPages.value)].map((v, i) => i + 1))
   }
 }
 

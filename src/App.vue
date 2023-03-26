@@ -1,24 +1,27 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from 'vue-router'
 import IconPiniaVue from './shared/components/icons/IconPinia.vue'
+import { NLoadingBarProvider } from 'naive-ui'
 </script>
 
 <template>
-  <header>
-    <IconPiniaVue />
+  <n-loading-bar-provider
+    ><header>
+      <IconPiniaVue />
 
-    <div class="wrapper">
-      <h3>Pinia - Exercises</h3>
+      <div class="wrapper">
+        <h3>Pinia - Exercises</h3>
 
-      <nav>
-        <RouterLink to="/">Counter Options</RouterLink>
-        <RouterLink to="/counter-2">Counter Setup</RouterLink>
-        <RouterLink to="/clients">Clients</RouterLink>
-      </nav>
-    </div>
-  </header>
+        <nav>
+          <RouterLink to="/">Counter Options</RouterLink>
+          <RouterLink to="/counter-2">Counter Setup</RouterLink>
+          <RouterLink to="/clients">Clients</RouterLink>
+        </nav>
+      </div>
+    </header>
 
-  <RouterView />
+    <RouterView />
+  </n-loading-bar-provider>
 </template>
 
 <style scoped>

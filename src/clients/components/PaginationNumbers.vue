@@ -1,15 +1,38 @@
 <script setup lang="ts">
+import { ref, toRef, watch } from 'vue'
 import { NButton, NSpace } from 'naive-ui'
-import useClients from '../composables/useClients'
 
-const { getPage, totalPageNumbers, totalPages, currentPage } = useClients()
+interface Props {
+  totalPages: number
+  currentPage: number
+}
+
+interface Emits {
+  (e: 'changePage', value: number): void
+}
+
+const props = defineProps<Props>()
+const emits = defineEmits<Emits>()
+
+const totalPages = toRef(props, 'totalPages')
+const currentPage = toRef(props, 'currentPage')
+
+const totalPageNumbers = ref<number[]>([])
+
+watch(
+  totalPages,
+  () => {
+    totalPageNumbers.value = [...new Array(totalPages.value)].map((v, i) => i + 1)
+  },
+  { immediate: true }
+)
 </script>
 <template>
   <div>
     <n-space>
       <n-button
         :disabled="currentPage === 1"
-        @click="getPage(currentPage - 1)"
+        @click="emits('changePage', props.currentPage - 1)"
         type="primary"
         size="medium"
         >Prev</n-button
@@ -17,15 +40,15 @@ const { getPage, totalPageNumbers, totalPages, currentPage } = useClients()
       <n-button
         v-for="number of totalPageNumbers"
         :key="number"
-        @click="getPage(number)"
+        @click="emits('changePage', number)"
         :class="{ active: currentPage === number }"
         :type="currentPage === number ? 'tertiary' : 'primary'"
         size="medium"
-        >{{ number }}</n-button
-      >
+        >{{ number }}
+      </n-button>
       <n-button
         :disabled="currentPage === totalPages"
-        @click="getPage(currentPage + 1)"
+        @click="emits('changePage', currentPage + 1)"
         type="primary"
         size="medium"
         >Next</n-button
